@@ -1,0 +1,4 @@
+/odin-nostr-relay
+*.bin
+kustomize/
+.claude/
