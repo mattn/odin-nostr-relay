@@ -28,8 +28,6 @@ main :: proc() {
 	}
 	free_all(context.temp_allocator)
 
-	thread.create_and_start(expire_loop, context, self_cleanup = true)
-
 	endpoint := net.Endpoint {
 		address = net.IP4_Any,
 		port    = config.port,
@@ -48,19 +46,5 @@ main :: proc() {
 			continue
 		}
 		thread.create_and_start_with_poly_data(sock, handle_connection, context, self_cleanup = true)
-	}
-}
-
-// Periodically remove expired events (NIP-40).
-expire_loop :: proc() {
-	for {
-		time.sleep(time.Hour)
-		n, err := db_delete_expired(now())
-		if msg, failed := err.?; failed {
-			log.warnf("deleting expired events failed: %s", msg)
-		} else if n > 0 {
-			log.infof("deleted %d expired events", n)
-		}
-		free_all(context.temp_allocator)
 	}
 }
