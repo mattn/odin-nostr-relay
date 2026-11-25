@@ -399,16 +399,3 @@ db_count :: proc(filters: []nostr.Filter, now: i64) -> (n: int, err: Db_Error) {
 	r := exec(conn, strings.to_string(b), p.values[:]) or_return
 	return first_int(r), nil
 }
-
-// Remove events whose NIP-40 expiration has passed.
-db_delete_expired :: proc(now: i64) -> (n: int, err: Db_Error) {
-	conn := acquire()
-	defer release(conn)
-	p := params_make()
-	sql := fmt.tprintf(
-		"DELETE FROM event WHERE expiration IS NOT NULL AND expiration <= %s::bigint",
-		add_int(&p, now),
-	)
-	r := exec(conn, sql, p.values[:]) or_return
-	return r.affected, nil
-}
